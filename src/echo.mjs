@@ -43,8 +43,8 @@ export default {
 
 async function handleWebsocketRequest(request, env) {
 	let id = env.echo.idFromName("default"); // this could be any name
-	let roomObject = env.echo.get(id);
-	return roomObject.fetch(request);
+	let echoObject = env.echo.get(id);
+	return echoObject.fetch(request);
 }
 
 
