@@ -1,0 +1,7 @@
+{
+  "name": "edge-chat-demo",
+  "description": "An simple multi-client echo example using web-sockets that runs on Cloudflare Workers using Durable Objects",
+  "version": "1.0.0",
+  "module": "./src/echo.mjs",
+  "private": true
+}

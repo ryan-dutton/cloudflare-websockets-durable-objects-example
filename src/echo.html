@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+	<head></head>
+	<body>
+		<textarea id="message"></textarea><br/>
+		<button id="send_button">Send</button><br/>
+		<div id="debug" style="border: 1px solid gold;min-width: 300px;min-height: 100px;"></div>
+	</body>
+	<script type="text/javascript">
+		let rejoined = false;
+		let startTime = Date.now();
+		let webSocket;
+
+		let debug = (info) => {
+			document.getElementById("debug").innerHTML += info.message + "<br/>"; 
+		}
+		
+		let restart = async () => {
+			if (!rejoined) {
+				rejoined = true;
+				let timeSinceLastJoin = Date.now() - startTime;
+				if (timeSinceLastJoin < 10000) {
+					await new Promise(resolve => setTimeout(resolve, 10000 - timeSinceLastJoin));
+				}
+				start();
+			}
+		}
+		
+		let start = () => {
+			let hostname = window.location.host;
+
+			const wss = document.location.protocol === "http:" ? "ws://" : "wss://";
+			webSocket = new WebSocket(wss + hostname + "/websocket");
+			rejoined = false;
+			startTime = Date.now();
+			
+			webSocket.addEventListener("open", (event) => {
+				webSocket.send(JSON.stringify({message: "new connection"}));
+			});
+
+			webSocket.addEventListener("message", (event) => {
+				let data = JSON.parse(event.data);
+				debug(data);
+			});
+
+			webSocket.addEventListener("close", (event) => {
+				console.log("WebSocket closed, reconnecting:", event.code, event.reason);
+				rejoin();
+			});
+			
+			webSocket.addEventListener("error", (event) => {
+				console.log("WebSocket error, reconnecting:", event);
+				rejoin();
+			});
+		}
+
+		let send_message = () => {
+			if (webSocket) {
+				webSocket.send(JSON.stringify({message: document.getElementById("message").value}));
+				document.getElementById("message").value = '';
+			}
+		}
+
+		window.addEventListener("load", start);
+		document.getElementById("send_button").addEventListener("click", send_message);
+	</script>
+</html>
